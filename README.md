@@ -11,7 +11,7 @@
 DevVelocity is an offline-first VS Code extension that automatically tracks your developer activity and coding sessions locally. Gain insights into your productivity without sacrificing privacy.
 
 ### Landing Page
-[Click here:](example link paste here)   
+[Click here:](https://jpb17387.github.io/DevVelocity/landingpage.html)   
 
 ## Features
 
