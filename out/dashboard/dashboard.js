@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTodayStats = getTodayStats;
 exports.getStreak = getStreak;
+exports.getWeeklyStats = getWeeklyStats;
 exports.registerDashboard = registerDashboard;
 const vscode = require("vscode");
 function getTodayStats(sessions) {
@@ -66,6 +67,27 @@ function getStreak(sessions) {
     }
     return { currentStreak };
 }
+function getWeeklyStats(sessions) {
+    const labels = [];
+    const durations = [];
+    const counts = [];
+    const now = new Date();
+    // For last 7 days, from 6 days ago to today
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const startOfDay = d.getTime();
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i + 1).getTime();
+        labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+        const daySessions = sessions.filter(s => s.start >= startOfDay && s.start < endOfDay);
+        let totalMs = 0;
+        for (const s of daySessions) {
+            totalMs += s.duration;
+        }
+        durations.push(Math.floor(totalMs / 60000));
+        counts.push(daySessions.length);
+    }
+    return { labels, durations, counts };
+}
 function registerDashboard(context, storage) {
     const disposable = vscode.commands.registerCommand('devvelocity.showDashboard', () => {
         console.log('[DevVelocity] Opening dashboard');
@@ -75,66 +97,183 @@ function registerDashboard(context, storage) {
         const sessions = storage.getSessions();
         const stats = getTodayStats(sessions);
         const streak = getStreak(sessions);
-        panel.webview.html = getWebviewContent(stats, streak);
+        const weeklyStats = getWeeklyStats(sessions);
+        panel.webview.html = getWebviewContent(stats, streak, weeklyStats);
     });
     context.subscriptions.push(disposable);
 }
-function getWebviewContent(stats, streak) {
+function getWebviewContent(stats, streak, weekly) {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevVelocity Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: var(--vscode-font-family);
-            padding: 20px;
+            padding: 30px;
             color: var(--vscode-editor-foreground);
             background-color: var(--vscode-editor-background);
+            max-width: 900px;
+            margin: 0 auto;
         }
         h1 {
             border-bottom: 1px solid var(--vscode-panel-border);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
         .stat-card {
-            margin-bottom: 15px;
-            padding: 15px;
+            padding: 20px;
             background-color: var(--vscode-editorWidget-background);
             border: 1px solid var(--vscode-widget-border);
-            border-radius: 4px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .stat-card-title {
+            font-size: 14px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .stat-value {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             color: var(--vscode-textLink-foreground);
-            margin-top: 5px;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        .chart-wrapper {
+            background-color: var(--vscode-editorWidget-background);
+            border: 1px solid var(--vscode-widget-border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--vscode-editor-foreground);
         }
     </style>
 </head>
 <body>
     <h1>DevVelocity Dashboard</h1>
     
-    <div class="stat-card">
-        <div>Today:</div>
-        <div class="stat-value">${stats.totalMinutes} minutes</div>
+    <div class="cards-container">
+        <div class="stat-card">
+            <div class="stat-card-title">Today's Time</div>
+            <div class="stat-value">${stats.totalMinutes} <span style="font-size: 16px;">min</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-title">Sessions Today</div>
+            <div class="stat-value">${stats.sessionCount}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-title">Current Streak</div>
+            <div class="stat-value">🔥 ${streak.currentStreak} <span style="font-size: 16px;">days</span></div>
+        </div>
     </div>
-    
-    <div class="stat-card">
-        <div>Sessions:</div>
-        <div class="stat-value">${stats.sessionCount}</div>
+
+    <div class="charts-container">
+        <div class="chart-wrapper">
+            <div class="chart-title">Time per Day (Last 7 Days)</div>
+            <canvas id="timeChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <div class="chart-title">Sessions per Day (Last 7 Days)</div>
+            <canvas id="sessionsChart"></canvas>
+        </div>
     </div>
-    
-    <div class="stat-card">
-        <div>Last Session:</div>
-        <div class="stat-value">${stats.lastSessionMinutes} minutes</div>
-    </div>
-    
-    <div class="stat-card">
-        <div>🔥 Streak:</div>
-        <div class="stat-value">${streak.currentStreak} days</div>
-    </div>
+
+    <script>
+        const labels = ${JSON.stringify(weekly.labels)};
+        const durations = ${JSON.stringify(weekly.durations)};
+        const counts = ${JSON.stringify(weekly.counts)};
+
+        const textColor = getComputedStyle(document.body).getPropertyValue('--vscode-editor-foreground').trim();
+        const gridColor = getComputedStyle(document.body).getPropertyValue('--vscode-panel-border').trim();
+        const primaryColor = getComputedStyle(document.body).getPropertyValue('--vscode-textLink-foreground').trim() || '#007acc';
+
+        Chart.defaults.color = textColor;
+
+        // Time Chart
+        new Chart(document.getElementById('timeChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Minutes',
+                    data: durations,
+                    backgroundColor: primaryColor,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Sessions Chart
+        new Chart(document.getElementById('sessionsChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Sessions',
+                    data: counts,
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
 </body>
 </html>`;
 }
