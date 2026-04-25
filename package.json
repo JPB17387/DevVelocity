@@ -1,0 +1,45 @@
+{
+  "name": "devvelocity-vscode-extension",
+  "version": "1.0.0",
+  "description": "Locally tracks developer activity sessions.",
+  "main": "./out/extension.js",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "devvelocity.showDashboard",
+        "title": "DevVelocity: Show Stats"
+      },
+      {
+        "command": "devvelocity.debug.showSessions",
+        "title": "DevVelocity: Show Raw Sessions"
+      },
+      {
+        "command": "devvelocity.debug.clearSessions",
+        "title": "DevVelocity: Clear Sessions"
+      },
+      {
+        "command": "devvelocity.debug.simulateSession",
+        "title": "DevVelocity: Simulate Session"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.1.6"
+  }
+}
