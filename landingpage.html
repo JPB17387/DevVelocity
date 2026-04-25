@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevVelocity</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    header h1 {
+      font-size: 25px;
+      color: #58a6ff;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .hero h2 {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #8b949e;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      background: #238636;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 60px;
+    }
+
+    .card {
+      background: #161b22;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: #58a6ff;
+    }
+
+    .section {
+      margin-top: 80px;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      padding: 20px;
+      color: #8b949e;
+      border-top: 1px solid #30363d;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- Header -->
+    <header>
+      <h1>DevVelocity</h1>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <h2>Track Your Coding. Build Your Momentum.</h2>
+      <p>
+        DevVelocity is an offline-first VS Code extension that tracks your coding sessions,
+        builds streaks, and helps you stay consistent — without compromising your privacy.
+      </p>
+
+      <a href="#" class="btn">Coming Soon on VS Code</a>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+      <div class="card">
+        <h3>⏱️ Session Tracking</h3>
+        <p>Automatically tracks your coding time and sessions in real-time.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔥 Streak System</h3>
+        <p>Stay consistent by building daily coding streaks.</p>
+      </div>
+
+      <div class="card">
+        <h3>📊 Live Dashboard</h3>
+        <p>Visualize your progress with charts and productivity stats.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔒 Privacy First</h3>
+        <p>No cloud. No tracking. All your data stays on your machine.</p>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section">
+      <h2>How It Works</h2>
+      <p>
+        DevVelocity runs inside your editor and detects activity like typing and file switching.
+        It automatically creates sessions, calculates durations, and builds your daily stats —
+        all stored locally on your device.
+      </p>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+      <h2>Start Building Consistency</h2>
+      <p>
+        Turn your coding into measurable progress and stay accountable every day.
+      </p>
+      <a href="#" class="btn">Get Started</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <small>&copy; 2026 DevVelocity. All Rights Reserved. | Developed with ❤️ by <strong>Jhon Paul Baonil</strong></small>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="/Animation_HTML/vanta.net.min.js"></script>
+    <script> 
+        VANTA.NET({
+        el: "body",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        color: 0x2dde22,
+        backgroundColor: 0x0,
+        points: 7.00,
+        maxDistance: 14.00,
+        spacing: 19.00
+        })
+    </script>
+  </div>
+
+</body>
+</html>
