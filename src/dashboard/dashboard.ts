@@ -122,7 +122,10 @@ export function registerDashboard(context: vscode.ExtensionContext, storage: Sto
         const streak = getStreak(sessions);
         const weeklyStats = getWeeklyStats(sessions);
 
-        panel.webview.html = getWebviewContent(stats, streak, weeklyStats);
+        const logoPathOnDisk = vscode.Uri.joinPath(context.extensionUri, 'public', 'assets', 'DevVelocity.png');
+        const logoUri = panel.webview.asWebviewUri(logoPathOnDisk);
+
+        panel.webview.html = getWebviewContent(stats, streak, weeklyStats, logoUri.toString());
     });
 
     context.subscriptions.push(disposable);
@@ -131,7 +134,8 @@ export function registerDashboard(context: vscode.ExtensionContext, storage: Sto
 function getWebviewContent(
     stats: { totalMinutes: number; sessionCount: number; lastSessionMinutes: number },
     streak: { currentStreak: number },
-    weekly: { labels: string[]; durations: number[]; counts: number[] }
+    weekly: { labels: string[]; durations: number[]; counts: number[] },
+    logoUri: string
 ): string {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -149,12 +153,23 @@ function getWebviewContent(
             max-width: 900px;
             margin: 0 auto;
         }
-        h1 {
+        .header-container {
+            display: flex;
+            align-items: center;
             border-bottom: 1px solid var(--vscode-panel-border);
             padding-bottom: 15px;
             margin-bottom: 30px;
+        }
+        .header-logo {
+            height: 40px;
+            margin-right: 15px;
+        }
+        h1 {
             font-size: 28px;
             font-weight: 600;
+            margin: 0;
+            padding: 0;
+            border: none;
         }
         .cards-container {
             display: grid;
@@ -203,7 +218,10 @@ function getWebviewContent(
     </style>
 </head>
 <body>
-    <h1>DevVelocity Dashboard</h1>
+    <div class="header-container">
+        <img src="${logoUri}" alt="DevVelocity Logo" class="header-logo">
+        <h1>DevVelocity Dashboard</h1>
+    </div>
     
     <div class="cards-container">
         <div class="stat-card">
